@@ -25,7 +25,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "imu.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -47,14 +47,19 @@
 /* USER CODE BEGIN Variables */
 
 /* USER CODE END Variables */
-osThreadId defaultTaskHandle;
+osThreadId MainTaskHandle;
+osThreadId sensorTaskHandle;
+osThreadId remoteTaskHandle;
+osMessageQId MainQueueHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
 
 /* USER CODE END FunctionPrototypes */
 
-void StartDefaultTask(void const * argument);
+void MainTaskWork(void const * argument);
+void sensorTaskWork(void const * argument);
+void remoteTaskWork(void const * argument);
 
 extern void MX_USB_DEVICE_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
@@ -97,14 +102,27 @@ void MX_FREERTOS_Init(void) {
   /* start timers, add new ones, ... */
   /* USER CODE END RTOS_TIMERS */
 
+  /* Create the queue(s) */
+  /* definition and creation of MainQueue */
+  osMessageQDef(MainQueue, 16, uint16_t);
+  MainQueueHandle = osMessageCreate(osMessageQ(MainQueue), NULL);
+
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-  /* definition and creation of defaultTask */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
-  defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
+  /* definition and creation of MainTask */
+  osThreadDef(MainTask, MainTaskWork, osPriorityNormal, 0, 128);
+  MainTaskHandle = osThreadCreate(osThread(MainTask), NULL);
+
+  /* definition and creation of sensorTask */
+  osThreadDef(sensorTask, sensorTaskWork, osPriorityNormal, 0, 128);
+  sensorTaskHandle = osThreadCreate(osThread(sensorTask), NULL);
+
+  /* definition and creation of remoteTask */
+  osThreadDef(remoteTask, remoteTaskWork, osPriorityIdle, 0, 128);
+  remoteTaskHandle = osThreadCreate(osThread(remoteTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -112,24 +130,60 @@ void MX_FREERTOS_Init(void) {
 
 }
 
-/* USER CODE BEGIN Header_StartDefaultTask */
+/* USER CODE BEGIN Header_MainTaskWork */
 /**
-  * @brief  Function implementing the defaultTask thread.
+  * @brief  Function implementing the MainTask thread.
   * @param  argument: Not used
   * @retval None
   */
-/* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void const * argument)
+/* USER CODE END Header_MainTaskWork */
+void MainTaskWork(void const * argument)
 {
   /* init code for USB_DEVICE */
   MX_USB_DEVICE_Init();
-  /* USER CODE BEGIN StartDefaultTask */
+  /* USER CODE BEGIN MainTaskWork */
   /* Infinite loop */
   for(;;)
   {
     osDelay(1);
   }
-  /* USER CODE END StartDefaultTask */
+  /* USER CODE END MainTaskWork */
+}
+
+/* USER CODE BEGIN Header_sensorTaskWork */
+/**
+* @brief Function implementing the sensorTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_sensorTaskWork */
+void sensorTaskWork(void const * argument)
+{
+  /* USER CODE BEGIN sensorTaskWork */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END sensorTaskWork */
+}
+
+/* USER CODE BEGIN Header_remoteTaskWork */
+/**
+* @brief Function implementing the remoteTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_remoteTaskWork */
+void remoteTaskWork(void const * argument)
+{
+  /* USER CODE BEGIN remoteTaskWork */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END remoteTaskWork */
 }
 
 /* Private application code --------------------------------------------------*/

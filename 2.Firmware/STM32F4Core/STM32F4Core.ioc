@@ -2,8 +2,11 @@
 CAD.formats=
 CAD.pinconfig=
 CAD.provider=
-FREERTOS.IPParameters=Tasks01
-FREERTOS.Tasks01=defaultTask,0,128,StartDefaultTask,Default,NULL,Dynamic,NULL,NULL
+FREERTOS.FootprintOK=true
+FREERTOS.IPParameters=Tasks01,FootprintOK,Queues01,configUSE_NEWLIB_REENTRANT
+FREERTOS.Queues01=MainQueue,16,uint16_t,0,Dynamic,NULL,NULL
+FREERTOS.Tasks01=MainTask,0,128,MainTaskWork,Default,NULL,Dynamic,NULL,NULL;sensorTask,0,128,sensorTaskWork,Default,NULL,Dynamic,NULL,NULL;remoteTask,-3,128,remoteTaskWork,Default,NULL,Dynamic,NULL,NULL
+FREERTOS.configUSE_NEWLIB_REENTRANT=1
 File.Version=6
 GPIO.groupedBy=Group By Peripherals
 KeepUserPlacement=false
