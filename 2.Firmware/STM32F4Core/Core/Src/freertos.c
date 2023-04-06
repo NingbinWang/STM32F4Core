@@ -48,8 +48,9 @@
 
 /* USER CODE END Variables */
 osThreadId MainTaskHandle;
-osThreadId sensorTaskHandle;
-osThreadId remoteTaskHandle;
+osThreadId SensorTaskHandle;
+osThreadId ControlTaskHandle;
+osThreadId MotorTaskHandle;
 osMessageQId MainQueueHandle;
 
 /* Private function prototypes -----------------------------------------------*/
@@ -58,8 +59,9 @@ osMessageQId MainQueueHandle;
 /* USER CODE END FunctionPrototypes */
 
 void MainTaskWork(void const * argument);
-void sensorTaskWork(void const * argument);
-void remoteTaskWork(void const * argument);
+void SensorTaskWork(void const * argument);
+void ControlTaskWork(void const * argument);
+void MotorTaskWork(void const * argument);
 
 extern void MX_USB_DEVICE_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
@@ -87,7 +89,7 @@ void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackTy
   */
 void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
-
+  IMU_Init();
   /* USER CODE END Init */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -116,13 +118,17 @@ void MX_FREERTOS_Init(void) {
   osThreadDef(MainTask, MainTaskWork, osPriorityNormal, 0, 128);
   MainTaskHandle = osThreadCreate(osThread(MainTask), NULL);
 
-  /* definition and creation of sensorTask */
-  osThreadDef(sensorTask, sensorTaskWork, osPriorityNormal, 0, 128);
-  sensorTaskHandle = osThreadCreate(osThread(sensorTask), NULL);
+  /* definition and creation of SensorTask */
+  osThreadDef(SensorTask, SensorTaskWork, osPriorityNormal, 0, 128);
+  SensorTaskHandle = osThreadCreate(osThread(SensorTask), NULL);
 
-  /* definition and creation of remoteTask */
-  osThreadDef(remoteTask, remoteTaskWork, osPriorityIdle, 0, 128);
-  remoteTaskHandle = osThreadCreate(osThread(remoteTask), NULL);
+  /* definition and creation of ControlTask */
+  osThreadDef(ControlTask, ControlTaskWork, osPriorityIdle, 0, 128);
+  ControlTaskHandle = osThreadCreate(osThread(ControlTask), NULL);
+
+  /* definition and creation of MotorTask */
+  osThreadDef(MotorTask, MotorTaskWork, osPriorityIdle, 0, 128);
+  MotorTaskHandle = osThreadCreate(osThread(MotorTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -150,40 +156,59 @@ void MainTaskWork(void const * argument)
   /* USER CODE END MainTaskWork */
 }
 
-/* USER CODE BEGIN Header_sensorTaskWork */
+/* USER CODE BEGIN Header_SensorTaskWork */
 /**
-* @brief Function implementing the sensorTask thread.
+* @brief Function implementing the SensorTask thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_sensorTaskWork */
-void sensorTaskWork(void const * argument)
+/* USER CODE END Header_SensorTaskWork */
+void SensorTaskWork(void const * argument)
 {
-  /* USER CODE BEGIN sensorTaskWork */
+  /* USER CODE BEGIN SensorTaskWork */
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+	IMU_Update();
+    osDelay(6);
   }
-  /* USER CODE END sensorTaskWork */
+  /* USER CODE END SensorTaskWork */
 }
 
-/* USER CODE BEGIN Header_remoteTaskWork */
+/* USER CODE BEGIN Header_ControlTaskWork */
 /**
-* @brief Function implementing the remoteTask thread.
+* @brief Function implementing the ControlTask thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_remoteTaskWork */
-void remoteTaskWork(void const * argument)
+/* USER CODE END Header_ControlTaskWork */
+void ControlTaskWork(void const * argument)
 {
-  /* USER CODE BEGIN remoteTaskWork */
+  /* USER CODE BEGIN ControlTaskWork */
   /* Infinite loop */
   for(;;)
   {
     osDelay(1);
   }
-  /* USER CODE END remoteTaskWork */
+  /* USER CODE END ControlTaskWork */
+}
+
+/* USER CODE BEGIN Header_MotorTaskWork */
+/**
+* @brief Function implementing the MotorTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_MotorTaskWork */
+void MotorTaskWork(void const * argument)
+{
+  /* USER CODE BEGIN MotorTaskWork */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END MotorTaskWork */
 }
 
 /* Private application code --------------------------------------------------*/
