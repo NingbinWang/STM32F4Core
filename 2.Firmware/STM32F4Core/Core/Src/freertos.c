@@ -25,7 +25,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "imu.h"
+#include "app.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -48,9 +49,6 @@
 
 /* USER CODE END Variables */
 osThreadId MainTaskHandle;
-osThreadId SensorTaskHandle;
-osThreadId ControlTaskHandle;
-osThreadId MotorTaskHandle;
 osMessageQId MainQueueHandle;
 
 /* Private function prototypes -----------------------------------------------*/
@@ -59,9 +57,6 @@ osMessageQId MainQueueHandle;
 /* USER CODE END FunctionPrototypes */
 
 void MainTaskWork(void const * argument);
-void SensorTaskWork(void const * argument);
-void ControlTaskWork(void const * argument);
-void MotorTaskWork(void const * argument);
 
 extern void MX_USB_DEVICE_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
@@ -89,7 +84,7 @@ void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackTy
   */
 void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
-  IMU_Init();
+	app_init();
   /* USER CODE END Init */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -115,20 +110,8 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the thread(s) */
   /* definition and creation of MainTask */
-  osThreadDef(MainTask, MainTaskWork, osPriorityNormal, 0, 128);
+  osThreadDef(MainTask, MainTaskWork, osPriorityRealtime, 0, 128);
   MainTaskHandle = osThreadCreate(osThread(MainTask), NULL);
-
-  /* definition and creation of SensorTask */
-  osThreadDef(SensorTask, SensorTaskWork, osPriorityNormal, 0, 128);
-  SensorTaskHandle = osThreadCreate(osThread(SensorTask), NULL);
-
-  /* definition and creation of ControlTask */
-  osThreadDef(ControlTask, ControlTaskWork, osPriorityIdle, 0, 128);
-  ControlTaskHandle = osThreadCreate(osThread(ControlTask), NULL);
-
-  /* definition and creation of MotorTask */
-  osThreadDef(MotorTask, MotorTaskWork, osPriorityIdle, 0, 128);
-  MotorTaskHandle = osThreadCreate(osThread(MotorTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -151,64 +134,11 @@ void MainTaskWork(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+	  app_update();
+      app_main();
+      osDelay(1);
   }
   /* USER CODE END MainTaskWork */
-}
-
-/* USER CODE BEGIN Header_SensorTaskWork */
-/**
-* @brief Function implementing the SensorTask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_SensorTaskWork */
-void SensorTaskWork(void const * argument)
-{
-  /* USER CODE BEGIN SensorTaskWork */
-  /* Infinite loop */
-  for(;;)
-  {
-	IMU_Update();
-    osDelay(6);
-  }
-  /* USER CODE END SensorTaskWork */
-}
-
-/* USER CODE BEGIN Header_ControlTaskWork */
-/**
-* @brief Function implementing the ControlTask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_ControlTaskWork */
-void ControlTaskWork(void const * argument)
-{
-  /* USER CODE BEGIN ControlTaskWork */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END ControlTaskWork */
-}
-
-/* USER CODE BEGIN Header_MotorTaskWork */
-/**
-* @brief Function implementing the MotorTask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_MotorTaskWork */
-void MotorTaskWork(void const * argument)
-{
-  /* USER CODE BEGIN MotorTaskWork */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END MotorTaskWork */
 }
 
 /* Private application code --------------------------------------------------*/

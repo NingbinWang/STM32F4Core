@@ -95,8 +95,8 @@ int main(void)
   MX_USART1_UART_Init();
   MX_I2C2_Init();
   MX_SPI1_Init();
-  MX_TIM3_Init();
   MX_USART2_UART_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -106,7 +106,6 @@ int main(void)
 
   /* Start scheduler */
   osKernelStart();
-
   /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */

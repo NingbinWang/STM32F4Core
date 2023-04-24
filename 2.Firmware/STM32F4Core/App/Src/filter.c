@@ -24,3 +24,5 @@ float filter_firstorderlowpass(FIRSTORDERFILTER_T *pstFilter,const float value)
 	fOut_last = fOutvalue;
 	return fOutvalue;
 }
+
+//互补滤波器
