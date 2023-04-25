@@ -48,15 +48,23 @@
 /* USER CODE BEGIN Variables */
 
 /* USER CODE END Variables */
-osThreadId MainTaskHandle;
+osThreadId defaultTaskHandle;
+osThreadId mainTaskHandle;
+osThreadId UpdateTaskHandle;
+osThreadId AngleTaskHandle;
 osMessageQId MainQueueHandle;
+osMutexId RevcMutexHandle;
+osMutexId SendMutexHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
 
 /* USER CODE END FunctionPrototypes */
 
-void MainTaskWork(void const * argument);
+void StartDefaultTask(void const * argument);
+void StartmainTask(void const * argument);
+void StartUpdateTask(void const * argument);
+void StartAngleTask(void const * argument);
 
 extern void MX_USB_DEVICE_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
@@ -86,6 +94,14 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
 	app_init();
   /* USER CODE END Init */
+  /* Create the mutex(es) */
+  /* definition and creation of RevcMutex */
+  osMutexDef(RevcMutex);
+  RevcMutexHandle = osMutexCreate(osMutex(RevcMutex));
+
+  /* definition and creation of SendMutex */
+  osMutexDef(SendMutex);
+  SendMutexHandle = osMutexCreate(osMutex(SendMutex));
 
   /* USER CODE BEGIN RTOS_MUTEX */
   /* add mutexes, ... */
@@ -109,9 +125,21 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-  /* definition and creation of MainTask */
-  osThreadDef(MainTask, MainTaskWork, osPriorityRealtime, 0, 128);
-  MainTaskHandle = osThreadCreate(osThread(MainTask), NULL);
+  /* definition and creation of defaultTask */
+  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
+  defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
+
+  /* definition and creation of mainTask */
+  osThreadDef(mainTask, StartmainTask, osPriorityIdle, 0, 128);
+  mainTaskHandle = osThreadCreate(osThread(mainTask), NULL);
+
+  /* definition and creation of UpdateTask */
+  osThreadDef(UpdateTask, StartUpdateTask, osPriorityIdle, 0, 128);
+  UpdateTaskHandle = osThreadCreate(osThread(UpdateTask), NULL);
+
+  /* definition and creation of AngleTask */
+  osThreadDef(AngleTask, StartAngleTask, osPriorityIdle, 0, 128);
+  AngleTaskHandle = osThreadCreate(osThread(AngleTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -119,26 +147,81 @@ void MX_FREERTOS_Init(void) {
 
 }
 
-/* USER CODE BEGIN Header_MainTaskWork */
+/* USER CODE BEGIN Header_StartDefaultTask */
 /**
-  * @brief  Function implementing the MainTask thread.
+  * @brief  Function implementing the defaultTask thread.
   * @param  argument: Not used
   * @retval None
   */
-/* USER CODE END Header_MainTaskWork */
-void MainTaskWork(void const * argument)
+/* USER CODE END Header_StartDefaultTask */
+void StartDefaultTask(void const * argument)
 {
   /* init code for USB_DEVICE */
   MX_USB_DEVICE_Init();
-  /* USER CODE BEGIN MainTaskWork */
+  /* USER CODE BEGIN StartDefaultTask */
   /* Infinite loop */
   for(;;)
   {
-	  app_update();
-      app_main();
-      osDelay(1);
+    osDelay(1);
   }
-  /* USER CODE END MainTaskWork */
+  /* USER CODE END StartDefaultTask */
+}
+
+/* USER CODE BEGIN Header_StartmainTask */
+/**
+* @brief Function implementing the mainTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartmainTask */
+void StartmainTask(void const * argument)
+{
+  /* USER CODE BEGIN StartmainTask */
+  /* Infinite loop */
+  for(;;)
+  {
+	app_main();
+    osDelay(2);
+  }
+  /* USER CODE END StartmainTask */
+}
+
+/* USER CODE BEGIN Header_StartUpdateTask */
+/**
+* @brief Function implementing the UpdateTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartUpdateTask */
+void StartUpdateTask(void const * argument)
+{
+  /* USER CODE BEGIN StartUpdateTask */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(3);
+    app_update();
+  }
+  /* USER CODE END StartUpdateTask */
+}
+
+/* USER CODE BEGIN Header_StartAngleTask */
+/**
+* @brief Function implementing the AngleTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartAngleTask */
+void StartAngleTask(void const * argument)
+{
+  /* USER CODE BEGIN StartAngleTask */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(6);
+    app_calangle();
+  }
+  /* USER CODE END StartAngleTask */
 }
 
 /* Private application code --------------------------------------------------*/

@@ -8,7 +8,7 @@ void app_init()
 
 void app_update()
 {
-	printf("app_update\n");
+	//printf("app_update\n");
 	IMU_Update();
 }
 
@@ -21,5 +21,5 @@ void app_main()
 
 void app_calangle()
 {
-	printf("app_calangle\n");
+	//printf("app_calangle\n");
 }
